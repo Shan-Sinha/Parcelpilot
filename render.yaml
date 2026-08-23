@@ -48,4 +48,4 @@ services:
         fromService:
           name: parcelpilot-backend
           type: web
-          property: url
+          property: host
