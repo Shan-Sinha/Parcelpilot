@@ -1,26 +1,25 @@
 #!/bin/bash
-# Render backend startup: copies PDFs, runs ingestion, then starts server
+# Render backend startup: runs data ingestion into /tmp/data then starts uvicorn
 set -e
 
 echo "=== Starting ParcelPilot Backend ==="
 
 # Create data directories
-mkdir -p "${DATA_DIR:-/data}/chroma"
+mkdir -p "${DATA_DIR:-/tmp/data}/chroma"
 
-# PDFs are committed in the repo root (one level up from backend/)
-# Copy them to DOCS_DIR so ingest.py can find them
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DOCS_TARGET="${DOCS_DIR:-/docs}"
-mkdir -p "$DOCS_TARGET"
+# Set default DOCS_DIR if not set
+export DOCS_DIR="${DOCS_DIR:-docs}"
+export DATA_DIR="${DATA_DIR:-/tmp/data}"
+export CHROMA_PERSIST_DIR="${CHROMA_PERSIST_DIR:-/tmp/data/chroma}"
+export SQLITE_DB_PATH="${SQLITE_DB_PATH:-/tmp/data/parcelpilot.db}"
 
-echo "=== Copying PDFs from $REPO_ROOT → $DOCS_TARGET ==="
-cp "$REPO_ROOT"/*.pdf "$DOCS_TARGET/" 2>/dev/null && echo "PDFs copied" || echo "No PDFs in repo root (may already be in DOCS_DIR)"
-cp "$REPO_ROOT"/*.xlsx "$DOCS_TARGET/" 2>/dev/null && echo "Excel copied" || echo "No xlsx in repo root"
+echo "=== Environment Setup ==="
+echo "DOCS_DIR: $DOCS_DIR"
+echo "DATA_DIR: $DATA_DIR"
 
 # Check if DB already exists (skip re-ingest on restarts to save boot time)
-DB_PATH="${SQLITE_DB_PATH:-${DATA_DIR:-/data}/parcelpilot.db}"
-if [ -f "$DB_PATH" ]; then
-  ROW_COUNT=$(python -c "import sqlite3; c=sqlite3.connect('$DB_PATH'); print(c.execute('SELECT COUNT(*) FROM tickets').fetchone()[0])" 2>/dev/null || echo "0")
+if [ -f "$SQLITE_DB_PATH" ]; then
+  ROW_COUNT=$(python -c "import sqlite3; c=sqlite3.connect('$SQLITE_DB_PATH'); print(c.execute('SELECT COUNT(*) FROM tickets').fetchone()[0])" 2>/dev/null || echo "0")
   echo "=== DB already exists with $ROW_COUNT tickets — skipping ingest ==="
 else
   echo "=== Running data ingestion ==="

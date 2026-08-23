@@ -24,7 +24,7 @@ services:
         generateValue: true
       # Storage paths — using container /tmp directory for Render Free Tier
       - key: DOCS_DIR
-        value: /opt/render/project/src
+        value: docs
       - key: DATA_DIR
         value: /tmp/data
       - key: CHROMA_PERSIST_DIR
