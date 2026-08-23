@@ -2,6 +2,9 @@
 const getApiBase = () => {
   let url = process.env.NEXT_PUBLIC_BACKEND_URL || '';
   if (url) {
+    if (!url.includes('.') && !url.includes('localhost')) {
+      url = `${url}.onrender.com`;
+    }
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = `https://${url}`;
     }
