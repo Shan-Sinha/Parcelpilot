@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getUser, getToken, setSession, login, clearSession } from '@/lib/api';
 import ChatInterface from '@/components/ChatInterface';
 import { Package, LogOut, LayoutDashboard, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ChatPage() {
+function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
@@ -101,5 +101,13 @@ export default function ChatPage() {
         <ChatInterface user={user} initialQuery={initialQuery} />
       </main>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={null}>
+      <ChatContent />
+    </Suspense>
   );
 }

@@ -171,7 +171,7 @@ export default function ChatInterface({ user, initialQuery }: ChatInterfaceProps
           background: 'var(--bg-surface)',
           borderBottom: '1px solid var(--border)',
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
           fontSize: '12px',
         }}>
