@@ -48,5 +48,4 @@ services:
         fromService:
           name: parcelpilot-backend
           type: web
-          property: host
-          format: https://{host}
+          property: url
