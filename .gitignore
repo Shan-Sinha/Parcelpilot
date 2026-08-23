@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment
+.env
+!.env.example
+
+# Data (generated at runtime)
+backend/data/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+
+# System
+.DS_Store
+*.log

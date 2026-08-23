@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies for chromadb
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for layer caching
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source
+COPY backend/ .
+
+# Copy PDF documents and Excel data from project root into /docs
+COPY *.pdf /docs/
+COPY *.xlsx /docs/
+
+# Create data directory for SQLite and ChromaDB
+RUN mkdir -p /data/chroma
+
+# Run ingestion script on build, then start server
+# (ingestion populates /data/parcelpilot.db and /data/chroma/)
+CMD ["sh", "-c", "python -m scripts.ingest && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
