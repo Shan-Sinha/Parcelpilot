@@ -1,0 +1,56 @@
+services:
+  # ─────────────────────────────────────────────────────────────────
+  # Backend — FastAPI + Python
+  # ─────────────────────────────────────────────────────────────────
+  - type: web
+    name: parcelpilot-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
+    plan: free
+    disk:
+      name: parcelpilot-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      # Azure OpenAI credentials — set these manually in Render dashboard
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT_NAME
+        value: gpt-4o
+      - key: AZURE_OPENAI_API_VERSION
+        value: "2024-02-15-preview"
+      # JWT secret — Render auto-generates a secure random value
+      - key: SECRET_KEY
+        generateValue: true
+      # Storage paths on the Render persistent disk
+      - key: DOCS_DIR
+        value: /opt/render/project/src
+      - key: DATA_DIR
+        value: /data
+      - key: CHROMA_PERSIST_DIR
+        value: /data/chroma
+      - key: SQLITE_DB_PATH
+        value: /data/parcelpilot.db
+
+  # ─────────────────────────────────────────────────────────────────
+  # Frontend — Next.js
+  # ─────────────────────────────────────────────────────────────────
+  - type: web
+    name: parcelpilot-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    envVars:
+      # Points the Next.js API proxy to the backend service URL
+      - key: NEXT_PUBLIC_BACKEND_URL
+        fromService:
+          name: parcelpilot-backend
+          type: web
+          property: host
+          format: https://{host}
