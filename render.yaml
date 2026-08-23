@@ -9,10 +9,6 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: bash start.sh
     plan: free
-    disk:
-      name: parcelpilot-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       # Azure OpenAI credentials — set these manually in Render dashboard
       - key: AZURE_OPENAI_ENDPOINT
@@ -26,15 +22,15 @@ services:
       # JWT secret — Render auto-generates a secure random value
       - key: SECRET_KEY
         generateValue: true
-      # Storage paths on the Render persistent disk
+      # Storage paths — using container /tmp directory for Render Free Tier
       - key: DOCS_DIR
         value: /opt/render/project/src
       - key: DATA_DIR
-        value: /data
+        value: /tmp/data
       - key: CHROMA_PERSIST_DIR
-        value: /data/chroma
+        value: /tmp/data/chroma
       - key: SQLITE_DB_PATH
-        value: /data/parcelpilot.db
+        value: /tmp/data/parcelpilot.db
 
   # ─────────────────────────────────────────────────────────────────
   # Frontend — Next.js
